@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>CPZ Admin</title>
+<meta name="theme-color" content="#101418">
+<link rel="manifest" href="admin-manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="cpz.css">
+<style>
+.login{min-height:100vh;background:var(--ink);display:flex;align-items:center;padding:20px 0}
+.login .card{padding:24px}
+.login h1{font-size:30px;margin:14px 0 4px}
+.login .brand-big{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800}
+.login .brand-big svg{width:44px;height:44px}
+.tabs{display:flex;gap:6px}
+.tab{min-height:40px;padding:0 16px;border-radius:10px;border:0;background:transparent;color:#C9D1CC;font-weight:700}
+.tab[aria-selected=true]{background:#fff;color:var(--ink)}
+.tab .dot{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--volt);color:var(--ink);font-size:13px;line-height:20px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:none}
+.chip{flex:none;min-height:40px;padding:0 14px;border-radius:99px;border:2px solid var(--line);background:#fff;font-weight:700}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip b{margin-left:6px;opacity:.7}
+.search{margin:8px 0 14px}
+.orders{display:grid;gap:10px;padding-bottom:40px}
+.o{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.o.fresh{border-color:var(--volt);box-shadow:0 0 0 3px rgba(255,107,26,.25)}
+.o-head{display:grid;grid-template-columns:1fr auto;gap:2px 12px;width:100%;padding:14px 16px;text-align:left;background:transparent;border:0}
+.o-num{font-weight:800;font-size:18px}
+.o-name{color:var(--ink-3);font-weight:650}
+.o-line{color:var(--muted);font-size:15px}
+.o-total{font-weight:800;font-size:20px;text-align:right}
+.o-time{color:var(--muted);font-size:14px;text-align:right}
+.o-body{padding:4px 16px 16px;border-top:1px solid var(--line)}
+.rows{margin:0;padding:0}
+.rows div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line)}
+.rows dt{color:var(--muted);flex:none}
+.rows dd{margin:0;font-weight:650;text-align:right;overflow-wrap:anywhere;white-space:pre-wrap}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.acts a{min-height:44px}
+.stbtns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 14px}
+.stbtn{min-height:46px;border-radius:var(--r-s);border:2px solid var(--line);background:#fff;font-weight:700}
+.stbtn[aria-pressed=true]{border-color:transparent}
+.sub{font-weight:700;margin:16px 0 8px}
+.inline{display:flex;gap:8px}
+.inline input{flex:1}
+.svc-row{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.svc-row.off{opacity:.7;background:#F5F6F5}
+.checks{display:flex;gap:18px;flex-wrap:wrap;margin:4px 0 12px}
+.checks label{display:flex;align-items:center;gap:8px;font-weight:600;min-height:40px}
+.checks input{width:22px;height:22px;accent-color:var(--green)}
+.empty{padding:30px 10px;text-align:center;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 130px;gap:10px}
+@media (max-width:640px){.bar .wrap.wide{flex-wrap:wrap;row-gap:6px;padding-top:8px;padding-bottom:8px}.tabs{order:3;width:100%}.tabs .tab{flex:1}.brand{font-size:16px}}
+@media (min-width:760px){.orders{grid-template-columns:1fr 1fr;align-items:start}.stbtns{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<main class="login" id="login" hidden>
+  <div class="wrap">
+    <div class="brand-big">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9.5" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff"/><rect x="19.1" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff"/><rect x="5.5" y="9" width="21" height="13" rx="5" fill="#FF6B1A"/><path d="M16 22v3.5c0 2.4-2.4 3-4.2 3" fill="none" stroke="#0B6B45" stroke-width="3.2" stroke-linecap="round"/></svg>
+      <span>Creative Plug Zambia</span>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <h1>Admin login</h1>
+      <p style="color:var(--muted);margin-bottom:18px">Only the CPZ owner can open orders.</p>
+      <div id="cfg-warn" class="banner bad" hidden>Not connected to the database. Open config.js and paste your Supabase URL and anon key.</div>
+      <label class="field"><span>Email</span><input id="l-email" type="email" autocomplete="username" inputmode="email"></label>
+      <label class="field"><span>Password</span><input id="l-pass" type="password" autocomplete="current-password"></label>
+      <div id="l-err" class="banner bad" hidden></div>
+      <button class="btn btn-volt btn-block" id="l-go" type="button">Log in</button>
+    </div>
+  </div>
+</main>
+
+<!-- APP -->
+<div id="app" hidden>
+  <header class="bar">
+    <div class="wrap wide">
+      <span class="brand">CPZ Admin</span>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-orders" aria-selected="true" type="button">Orders<span class="dot" id="new-dot" hidden></span></button>
+        <button class="tab" role="tab" id="tab-services" aria-selected="false" type="button">Services</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" id="refresh" type="button">Refresh</button>
+      <button class="btn btn-ghost" id="logout" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="wrap wide">
+    <section id="p-orders">
+      <div class="chips" id="chips" role="group" aria-label="Filter by status"></div>
+      <input class="search" id="search" type="text" placeholder="Search by order number, name or phone" aria-label="Search orders">
+      <div id="o-err" class="banner bad" hidden></div>
+      <div class="orders" id="orders"></div>
+    </section>
+
+    <section id="p-services" hidden style="padding-top:18px">
+      <div class="card" style="margin-bottom:18px">
+        <h2 style="font-size:20px;margin-bottom:12px">Add a service</h2>
+        <div class="two">
+          <label class="field" style="margin:0 0 12px"><span>Service name</span><input id="n-name" type="text" maxlength="80"></label>
+          <label class="field" style="margin:0 0 12px"><span>Price (K)</span><input id="n-price" type="number" inputmode="decimal" min="0" step="0.01"></label>
+        </div>
+        <div class="checks"><label><input type="checkbox" id="n-start"> Starting price (shows &ldquo;From&rdquo;)</label></div>
+        <button class="btn btn-green" id="n-add" type="button">Add service</button>
+      </div>
+      <p style="color:var(--muted);margin-bottom:12px">Price changes apply to new orders only. Existing orders keep the price they were placed at.</p>
+      <div id="s-err" class="banner bad" hidden></div>
+      <div id="svcs"></div>
+    </section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="cpz.js"></script>
+<script>
+(function () {
+  'use strict';
+  var C = CPZ, el = C.el, A = C.admin;
+  var $ = function (id) { return document.getElementById(id); };
+  var STATUSES = ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'];
+  var S = { orders: [], services: [], filter: 'All', q: '', open: null, known: null, fresh: {}, unseen: 0, tab: 'orders', timer: null };
+
+  /* ---------- login / logout ---------- */
+  function showLogin(msg) {
+    clearInterval(S.timer); $('app').hidden = true; $('login').hidden = false;
+    $('cfg-warn').hidden = C.configured;
+    var e = $('l-err'); e.textContent = msg || ''; e.hidden = !msg;
+  }
+  function showApp() {
+    $('login').hidden = true; $('app').hidden = false; S.known = null;
+    loadOrders(); loadServices();
+    clearInterval(S.timer); S.timer = setInterval(function () { if (!document.hidden && S.tab === 'orders') loadOrders(true); }, 20000);
+  }
+  function authFail(e) { if (e && e.code === 'auth') { A.logout(); showLogin(e.message); return true; } return false; }
+
+  $('l-go').addEventListener('click', function () {
+    var email = $('l-email').value.trim(), pw = $('l-pass').value;
+    var err = $('l-err'); err.hidden = true;
+    if (!email || !pw) { err.textContent = 'Enter your email and password.'; err.hidden = false; return; }
+    var b = $('l-go'); b.disabled = true; b.textContent = 'Logging in\u2026';
+    A.login(email, pw).then(function () { $('l-pass').value = ''; showApp(); })
+      .catch(function (e) { err.textContent = e.message; err.hidden = false; })
+      .then(function () { b.disabled = false; b.textContent = 'Log in'; });
+  });
+  $('l-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('l-go').click(); });
+  $('logout').addEventListener('click', function () { A.logout(); S.orders = []; showLogin(); });
+  $('refresh').addEventListener('click', function () { loadOrders(); loadServices(); C.toast('Refreshed'); });
+
+  /* ---------- tabs ---------- */
+  function setTab(t) {
+    S.tab = t;
+    $('p-orders').hidden = t !== 'orders'; $('p-services').hidden = t !== 'services';
+    $('tab-orders').setAttribute('aria-selected', String(t === 'orders')); $('tab-services').setAttribute('aria-selected', String(t === 'services'));
+    if (t === 'orders') { S.unseen = 0; updateBadge(); }
+  }
+  $('tab-orders').addEventListener('click', function () { setTab('orders'); });
+  $('tab-services').addEventListener('click', function () { setTab('services'); });
+  function updateBadge() {
+    var d = $('new-dot'); d.hidden = !S.unseen; d.textContent = S.unseen;
+    document.title = (S.unseen ? '(' + S.unseen + ') ' : '') + 'CPZ Admin';
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && S.tab === 'orders') { S.unseen = 0; updateBadge(); } });
+
+  /* ---------- orders ---------- */
+  function loadOrders(quiet) {
+    return A.orders().then(function (rows) {
+      $('o-err').hidden = true;
+      if (S.known) {
+        var added = rows.filter(function (o) { return !S.known[o.id]; });
+        if (added.length) {
+          added.forEach(function (o) { S.fresh[o.id] = true; });
+          S.unseen += added.length; updateBadge();
+          var f = added[0]; C.toast('New order ' + f.order_number + ' from ' + f.customer_name + ' (' + C.money(f.total) + ')');
+          if (navigator.vibrate) try { navigator.vibrate([200, 100, 200]); } catch (e) {}
+        }
+      }
+      S.known = {}; rows.forEach(function (o) { S.known[o.id] = true; });
+      S.orders = rows;
+      var busy = document.activeElement && $('orders').contains(document.activeElement) && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+      if (!(quiet && busy)) renderOrders();
+    }).catch(function (e) {
+      if (authFail(e)) return;
+      if (!quiet) { $('o-err').textContent = e.message; $('o-err').hidden = false; }
+    });
+  }
+
+  function waNumber(p) { var d = C.digits(p); if (d.charAt(0) === '0') d = '260' + d.slice(1); else if (d.length === 9) d = '260' + d; return d; }
+  function fmtDT(iso) { return new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+  function row(dt, dd, cls) { return el('div', { class: cls || '' }, [el('dt', { text: dt }), el('dd', { text: dd })]); }
+
+  function renderChips() {
+    var counts = { All: S.orders.length }; STATUSES.forEach(function (s) { counts[s] = 0; });
+    S.orders.forEach(function (o) { counts[o.status] = (counts[o.status] || 0) + 1; });
+    var box = $('chips'); box.textContent = '';
+    ['All'].concat(STATUSES).forEach(function (s) {
+      var b = el('button', { type: 'button', class: 'chip', 'aria-pressed': String(S.filter === s) }, [s, el('b', { text: String(counts[s] || 0) })]);
+      b.addEventListener('click', function () { S.filter = s; renderOrders(); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderOrders() {
+    renderChips();
+    var q = S.q.toLowerCase(), qd = C.digits(S.q);
+    var list = S.orders.filter(function (o) {
+      if (S.filter !== 'All' && o.status !== S.filter) return false;
+      if (!q) return true;
+      return o.order_number.toLowerCase().indexOf(q) > -1 || o.customer_name.toLowerCase().indexOf(q) > -1 ||
+        (qd && C.digits(o.phone).indexOf(qd) > -1) || o.service_name.toLowerCase().indexOf(q) > -1;
+    });
+    var box = $('orders'); box.textContent = '';
+    if (!list.length) { box.appendChild(el('div', { class: 'empty', text: S.orders.length ? 'No orders match this filter.' : 'No orders yet. New orders from customers appear here.' })); return; }
+    list.forEach(function (o) { box.appendChild(orderCard(o)); });
+  }
+
+  function orderCard(o) {
+    var open = S.open === o.id, from = o.price_is_starting ? 'From ' : '';
+    var head = el('button', { type: 'button', class: 'o-head', 'aria-expanded': String(open) }, [
+      el('span', { class: 'o-num', text: o.order_number }),
+      el('span', { class: 'o-total', text: from + C.money(o.total) }),
+      el('span', { class: 'o-name', text: o.customer_name }),
+      el('span', { class: 'pill ' + C.statusClass(o.status), text: o.status, style: 'justify-self:end' }),
+      el('span', { class: 'o-line', text: o.service_name + ' \u00D7 ' + o.quantity }),
+      el('span', { class: 'o-time', text: C.timeAgo(o.created_at) })
+    ]);
+    head.addEventListener('click', function () { delete S.fresh[o.id]; S.open = open ? null : o.id; renderOrders(); });
+    var card = el('article', { class: 'o' + (S.fresh[o.id] ? ' fresh' : '') }, [head]);
+    if (!open) return card;
+
+    var body = el('div', { class: 'o-body' });
+    var acts = el('div', { class: 'acts' }, [
+      el('a', { class: 'btn btn-green btn-sm', href: 'tel:' + o.phone.replace(/[^\d+]/g, ''), text: 'Call' }),
+      el('a', { class: 'btn btn-line btn-sm', target: '_blank', rel: 'noopener', href: 'https://wa.me/' + waNumber(o.phone) + '?text=' + encodeURIComponent('Hello ' + o.customer_name + ', this is Creative Plug Zambia about your order ' + o.order_number + '.'), text: 'WhatsApp' }),
+      o.email ? el('a', { class: 'btn btn-line btn-sm', href: 'mailto:' + o.email, text: 'Email' }) : el('span')
+    ]);
+    body.appendChild(acts);
+    var dl = el('dl', { class: 'rows' });
+    dl.appendChild(row('Phone', o.phone));
+    if (o.email) dl.appendChild(row('Email', o.email));
+    dl.appendChild(row('Service', o.service_name));
+    dl.appendChild(row('Quantity', String(o.quantity)));
+    dl.appendChild(row('Unit price', from + C.money(o.unit_price)));
+    dl.appendChild(row('Total', from + C.money(o.total)));
+    if (o.price_is_starting) dl.appendChild(row('Price status', 'Not confirmed yet'));
+    if (o.preferred_date) dl.appendChild(row('Needed by', new Date(o.preferred_date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })));
+    dl.appendChild(row('Placed', fmtDT(o.created_at)));
+    if (o.instructions) dl.appendChild(row('Instructions', o.instructions));
+    body.appendChild(dl);
+
+    body.appendChild(el('div', { class: 'sub', text: 'Order status' }));
+    var sb = el('div', { class: 'stbtns' });
+    STATUSES.forEach(function (st) {
+      var b = el('button', { type: 'button', class: 'stbtn ' + (o.status === st ? C.statusClass(st) : ''), 'aria-pressed': String(o.status === st), text: st });
+      b.addEventListener('click', function () {
+        if (o.status === st) return;
+        b.disabled = true;
+        A.updateOrder(o.id, { status: st }).then(function (r) { Object.assign(o, r); C.toast(o.order_number + ' is now ' + st); renderOrders(); })
+          .catch(function (e) { if (!authFail(e)) C.toast(e.message, true); b.disabled = false; });
+      });
+      sb.appendChild(b);
+    });
+    body.appendChild(sb);
+
+    body.appendChild(el('div', { class: 'sub', text: o.price_is_starting ? 'Confirm final price (total in K)' : 'Change total price (K)' }));
+    var pin = el('input', { type: 'number', inputmode: 'decimal', min: '0', step: '0.01', value: String(o.total), 'aria-label': 'Final total in kwacha' });
+    var pbtn = el('button', { type: 'button', class: 'btn btn-green btn-sm', text: 'Save price' });
+    pbtn.addEventListener('click', function () {
+      var t = Math.round(parseFloat(pin.value) * 100) / 100;
+      if (isNaN(t) || t < 0) { C.toast('Enter a valid amount.', true); return; }
+      pbtn.disabled = true;
+      A.updateOrder(o.id, { total: t, unit_price: Math.round(t / o.quantity * 100) / 100, price_is_starting: false })
+        .then(function (r) { Object.assign(o, r); C.toast('Price saved: ' + C.money(t)); renderOrders(); })
+        .catch(function (e) { if (!authFail(e)) C.toast(e.message, true); pbtn.disabled = false; });
+    });
+    body.appendChild(el('div', { class: 'inline' }, [pin, pbtn]));
+
+    body.appendChild(el('div', { class: 'sub', text: 'Private note (customer cannot see this)' }));
+    var note = el('textarea', { 'aria-label': 'Private note', style: 'min-height:80px' }); note.value = o.admin_note || '';
+    var nbtn = el('button', { type: 'button', class: 'btn btn-line btn-sm', style: 'margin-top:8px', text: 'Save note' });
+    nbtn.addEventListener('click', function () {
+      nbtn.disabled = true;
+      A.updateOrder(o.id, { admin_note: note.value.trim() || null })
+        .then(function (r) { Object.assign(o, r); C.toast('Note saved'); nbtn.disabled = false; })
+        .catch(function (e) { if (!authFail(e)) C.toast(e.message, true); nbtn.disabled = false; });
+    });
+    body.appendChild(note); body.appendChild(nbtn);
+    card.appendChild(body);
+    return card;
+  }
+  $('search').addEventListener('input', function () { S.q = $('search').value.trim(); renderOrders(); });
+
+  /* ---------- services ---------- */
+  function loadServices() {
+    return A.services().then(function (rows) { S.services = rows; $('s-err').hidden = true; renderServices(); })
+      .catch(function (e) { if (!authFail(e)) { $('s-err').textContent = e.message; $('s-err').hidden = false; } });
+  }
+  function renderServices() {
+    var box = $('svcs'); box.textContent = '';
+    if (!S.services.length) box.appendChild(el('div', { class: 'empty', text: 'No services yet. Add your first one above.' }));
+    S.services.forEach(function (s) {
+      var name = el('input', { type: 'text', maxlength: '80', value: s.name, 'aria-label': 'Service name' });
+      var price = el('input', { type: 'number', inputmode: 'decimal', min: '0', step: '0.01', value: String(s.price), 'aria-label': 'Price in kwacha' });
+      var st = el('input', { type: 'checkbox' }); st.checked = !!s.price_is_starting;
+      var on = el('input', { type: 'checkbox' }); on.checked = !!s.active;
+      var save = el('button', { type: 'button', class: 'btn btn-green btn-sm', text: 'Save changes' });
+      var wrap = el('div', { class: 'svc-row' + (s.active ? '' : ' off') }, [
+        el('div', { class: 'two' }, [el('label', { class: 'field', style: 'margin:0 0 12px' }, [el('span', { text: 'Service name' }), name]),
+          el('label', { class: 'field', style: 'margin:0 0 12px' }, [el('span', { text: 'Price (K)' }), price])]),
+        el('div', { class: 'checks' }, [el('label', {}, [st, 'Starting price']), el('label', {}, [on, 'Visible to customers'])]),
+        save
+      ]);
+      save.addEventListener('click', function () {
+        var p = Math.round(parseFloat(price.value) * 100) / 100, n = name.value.trim();
+        if (!n) { C.toast('Enter a service name.', true); return; }
+        if (isNaN(p) || p < 0) { C.toast('Enter a valid price.', true); return; }
+        save.disabled = true;
+        A.updateService(s.id, { name: n, price: p, price_is_starting: st.checked, active: on.checked })
+          .then(function (r) { Object.assign(s, r); C.toast(n + ' saved'); renderServices(); })
+          .catch(function (e) { if (!authFail(e)) C.toast(e.message, true); save.disabled = false; });
+      });
+      box.appendChild(wrap);
+    });
+  }
+  $('n-add').addEventListener('click', function () {
+    var n = $('n-name').value.trim(), p = Math.round(parseFloat($('n-price').value) * 100) / 100;
+    if (!n) { C.toast('Enter a service name.', true); return; }
+    if (isNaN(p) || p < 0) { C.toast('Enter a valid price.', true); return; }
+    var next = S.services.reduce(function (m, s) { return Math.max(m, s.sort_order || 0); }, 0) + 1;
+    var b = $('n-add'); b.disabled = true;
+    A.addService({ name: n, price: p, price_is_starting: $('n-start').checked, active: true, sort_order: next })
+      .then(function (r) { S.services.push(r); $('n-name').value = ''; $('n-price').value = ''; $('n-start').checked = false; C.toast(n + ' added'); renderServices(); })
+      .catch(function (e) { if (!authFail(e)) C.toast(/duplicate|unique/i.test(e.message) ? 'A service with that name already exists.' : e.message, true); })
+      .then(function () { b.disabled = false; });
+  });
+
+  /* ---------- start ---------- */
+  if (A.hasSession() && C.configured) {
+    A.check().then(showApp).catch(function (e) { showLogin(e.code === 'network' ? e.message : (e.message || '')); });
+  } else showLogin();
+})();
+</script>
+</body>
+</html>

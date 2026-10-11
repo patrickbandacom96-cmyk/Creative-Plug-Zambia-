@@ -1,0 +1,79 @@
+/* Creative Plug Zambia - shared styles */
+:root{
+  --ink:#101418; --ink-2:#222A31; --ink-3:#3A444D;
+  --mist:#EDF1EE; --panel:#FFFFFF; --line:#D3DAD5; --muted:#56615A;
+  --green:#0B6B45; --green-d:#08532F; --green-l:#DCEFE5;
+  --volt:#FF6B1A; --volt-d:#E85A0B;
+  --red:#C0301D; --red-l:#FBE4E0; --amber:#8F5B00; --amber-l:#FFF0CC; --blue:#1F5FBF; --blue-l:#E1ECFB;
+  --r:14px; --r-s:10px;
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);font-size:16px;line-height:1.45;color:var(--ink);background:var(--mist);-webkit-tap-highlight-color:transparent}
+h1,h2,h3{margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--green-d)}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--volt);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+.wrap.wide{max-width:980px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;background:var(--ink);color:#fff}
+.bar .wrap{display:flex;align-items:center;gap:10px;min-height:56px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em;text-decoration:none;color:#fff;font-size:17px}
+.brand svg{width:28px;height:28px;flex:none}
+.bar .spacer{flex:1}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:var(--r-s);border:2px solid transparent;font-weight:700;text-decoration:none;text-align:center;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn-volt{background:var(--volt);color:var(--ink)}
+.btn-volt:hover{background:var(--volt-d)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-d)}
+.btn-line{background:transparent;border-color:var(--ink);color:var(--ink)}
+.btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);min-height:40px;padding:0 14px;font-size:15px}
+.btn-red{background:var(--red);color:#fff}
+.btn-block{display:flex;width:100%}
+.btn-sm{min-height:40px;padding:0 14px;font-size:15px}
+
+/* fields */
+.field{display:block;margin-bottom:16px}
+.field>span{display:block;font-weight:650;font-size:15px;margin-bottom:6px}
+.field small{display:block;color:var(--muted);margin-top:4px;font-size:14px}
+.field .err{color:var(--red);font-weight:600;font-size:14px;margin-top:4px}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=number],input[type=password],textarea,select{
+  width:100%;min-height:50px;padding:10px 14px;background:#fff;border:2px solid var(--line);border-radius:var(--r-s);transition:border-color .15s}
+textarea{min-height:104px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px rgba(11,107,69,.2)}
+.invalid{border-color:var(--red)!important}
+
+/* cards */
+.card{background:var(--panel);border-radius:var(--r);padding:18px;border:1px solid var(--line)}
+.sec{padding:26px 0 6px}
+.sec>h2{font-size:24px;margin-bottom:6px}
+.sec>.lead{color:var(--muted);margin-bottom:16px}
+
+/* pills / status */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:99px;font-size:14px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.st-Pending{background:var(--amber-l);color:var(--amber)}
+.st-Confirmed{background:var(--blue-l);color:var(--blue)}
+.st-In-Progress{background:#E9E2F8;color:#5B3AA6}
+.st-Completed{background:var(--green-l);color:var(--green-d)}
+.st-Cancelled{background:var(--red-l);color:var(--red)}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.toast.bad{background:var(--red)}
+.banner{background:var(--amber-l);color:#4a3000;border:1px solid #E7C777;border-radius:var(--r-s);padding:12px 14px;margin:14px 0;font-weight:600}
+.banner.bad{background:var(--red-l);color:#6a1a10;border-color:#E3A59B}
+.spinner{width:20px;height:20px;border-radius:50%;border:3px solid rgba(0,0,0,.15);border-top-color:currentColor;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
