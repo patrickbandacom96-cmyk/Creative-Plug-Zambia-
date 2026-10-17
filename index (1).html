@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creative Plug Zambia</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16131f">
+<style>
+:root{--paper:#faf9f6;--ink:#16131f;--plug:#ffc72c;--mute:#6b6878;--line:#e4e1da;--ok:#1d7a46;--bad:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+header{background:var(--ink);color:#fff;padding:20px 16px 16px}
+header h1{margin:0;font-size:24px;letter-spacing:-.5px}
+header h1 b{color:var(--plug)}
+header p{margin:2px 0 0;color:#bdb9cc;font-size:14px}
+nav{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper)}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:#fff;border-radius:10px;font:inherit;font-weight:600;color:var(--mute)}
+nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{padding:16px;max-width:560px;margin:0 auto}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 4px}
+input,select,textarea{width:100%;padding:12px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:90px}
+button.go{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:var(--plug);color:var(--ink);font:inherit;font-weight:700;font-size:17px}
+button.sm{padding:8px 12px;border:1px solid var(--ink);background:#fff;border-radius:8px;font:inherit;font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--plug);outline-offset:1px}
+.price{font-size:28px;font-weight:800;margin:10px 0 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.card h3{margin:0 0 4px;font-size:17px}
+.mute{color:var(--mute);font-size:14px}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--ink);color:#fff;font-size:13px;font-weight:600}
+.tag.Pending{background:#8a6d00}.tag.Confirmed{background:#25508f}.tag.Completed{background:var(--ok)}.tag.InProgress{background:#7a3fb0}
+.msg{padding:12px;border-radius:10px;margin:12px 0;background:#fff3cd}
+.msg.err{background:#fde7e5;color:var(--bad)}
+.msg.good{background:#e3f4ea;color:var(--ok)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+a.wa{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:12px;background:#1d7a46;color:#fff;font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<header><h1>Creative <b>Plug</b> Zambia</h1><p>Plug into Creativity.</p></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ====== 1. PASTE YOUR SUPABASE DETAILS HERE ====== */
+const SUPABASE_URL = "https://pzosbgpdohtupzyyloyn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zIkkukFX1b8_DxHI8g9yuQ_bNRUJE4r";
+const WHATSAPP = "260977934234";
+/* ================================================= */
+
+const configured = !SUPABASE_URL.startsWith("PASTE");
+const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const $ = s => document.querySelector(s);
+const app = $("#app"), nav = $("#nav");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = (p, n) => (n ? n + " " : "") + "K" + Number(p);
+const STATUSES = ["Pending", "Confirmed", "In Progress", "Completed"];
+let tab = "order";
+
+function tabs(list) {
+  nav.innerHTML = list.map(([k, t]) => `<button data-k="${k}" class="${k === tab ? "on" : ""}">${t}</button>`).join("");
+  nav.querySelectorAll("button").forEach(b => b.onclick = () => { tab = b.dataset.k; route(); });
+}
+const note = (t, c = "") => `<div class="msg ${c}">${esc(t)}</div>`;
+
+async function route() {
+  if (!configured) {
+    nav.innerHTML = "";
+    app.innerHTML = note("App is not connected to the database. Open index.html and paste your Supabase URL and anon key at the top of the script.", "err");
+    return;
+  }
+  if (location.hash === "#admin") return admin();
+  if (tab !== "order" && tab !== "track") tab = "order";
+  tabs([["order", "Order"], ["track", "Track order"]]);
+  tab === "order" ? orderView() : trackView();
+}
+
+/* ---------- Customer: order ---------- */
+async function orderView() {
+  app.innerHTML = "<p class='mute'>Loading services…</p>";
+  const { data, error } = await sb.from("services").select("*").eq("active", true).order("sort");
+  if (error) return app.innerHTML = note("Could not load services. Check your connection and try again.", "err");
+  if (!data.length) return app.innerHTML = note("No services are available right now.");
+  app.innerHTML = `
+    <label for="svc">What do you need?</label>
+    <select id="svc">${data.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>
+    <div class="price" id="pr"></div>
+    <label for="nm">Your name</label><input id="nm" autocomplete="name">
+    <label for="ph">Phone number</label><input id="ph" type="tel" autocomplete="tel" placeholder="0977 000 000">
+    <label for="dt">Details for the designer</label>
+    <textarea id="dt" placeholder="Text, colours, event date, style…"></textarea>
+    <div id="out"></div>
+    <button class="go" id="send">Place order</button>`;
+  const show = () => { const s = data.find(x => x.id == $("#svc").value); $("#pr").textContent = money(s.price, s.price_note); };
+  $("#svc").onchange = show; show();
+  $("#send").onclick = async () => {
+    const nm = $("#nm").value.trim(), ph = $("#ph").value.trim();
+    if (!nm || ph.replace(/\D/g, "").length < 9) return $("#out").innerHTML = note("Enter your name and a valid phone number.", "err");
+    $("#send").disabled = true; $("#send").textContent = "Sending…";
+    const { data: no, error } = await sb.rpc("create_order", { p_name: nm, p_phone: ph, p_service: Number($("#svc").value), p_details: $("#dt").value });
+    if (error) { $("#send").disabled = false; $("#send").textContent = "Place order"; return $("#out").innerHTML = note("Order failed. Please try again.", "err"); }
+    try { localStorage.setItem("cpz_last", JSON.stringify({ no, ph })); } catch (e) {}
+    const s = data.find(x => x.id == $("#svc").value);
+    const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi CPZ, my order is ${no} (${s.name}). Name: ${nm}`)}`;
+    app.innerHTML = note(`Order placed! Your order number is ${no}. Keep it to track your order.`, "good") +
+      `<p>Use <b>Track order</b> with your number and phone to see progress.</p><a class="wa" href="${wa}">Message CPZ on WhatsApp</a>`;
+  };
+}
+
+/* ---------- Customer: track ---------- */
+function trackView() {
+  let last = {}; try { last = JSON.parse(localStorage.getItem("cpz_last")) || {}; } catch (e) {}
+  app.innerHTML = `
+    <label for="no">Order number</label><input id="no" placeholder="CPZ-0001" value="${esc(last.no)}">
+    <label for="ph">Phone number used for the order</label><input id="ph" type="tel" value="${esc(last.ph)}">
+    <button class="go" id="chk">Check status</button><div id="out"></div>`;
+  $("#chk").onclick = async () => {
+    const { data, error } = await sb.rpc("track_order", { p_no: $("#no").value, p_phone: $("#ph").value });
+    if (error) return $("#out").innerHTML = note("Could not check. Try again.", "err");
+    if (!data.length) return $("#out").innerHTML = note("No order found. Check the number and phone.", "err");
+    const o = data[0];
+    $("#out").innerHTML = `<div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
+      <p class="mute">${money(o.price, o.price_note)} · ${new Date(o.created_at).toLocaleDateString()}</p>
+      <span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span></div>`;
+  };
+}
+
+/* ---------- Admin (open yourlink/#admin) ---------- */
+async function admin() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    nav.innerHTML = "";
+    app.innerHTML = `<h2>Admin login</h2>
+      <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+      <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+      <div id="out"></div><button class="go" id="in">Log in</button>`;
+    $("#in").onclick = async () => {
+      const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
+      error ? $("#out").innerHTML = note("Wrong email or password.", "err") : admin();
+    };
+    return;
+  }
+  if (tab !== "orders" && tab !== "services") tab = "orders";
+  tabs([["orders", "Orders"], ["services", "Services"], ["out", "Log out"]]);
+  nav.querySelector('[data-k="out"]').onclick = async () => { await sb.auth.signOut(); tab = "order"; admin(); };
+  tab === "orders" ? adminOrders() : adminServices();
+}
+
+async function adminOrders() {
+  app.innerHTML = "<p class='mute'>Loading…</p>";
+  const { data, error } = await sb.from("orders").select("*").order("created_at", { ascending: false });
+  if (error) return app.innerHTML = note("Could not load orders.", "err");
+  app.innerHTML = `<button class="sm" id="rf">Refresh</button>` + (data.length ? data.map(o => `
+    <div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
+      <div class="mute">${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a> · ${money(o.price, o.price_note)}</div>
+      <p>${esc(o.details) || "<span class='mute'>No details</span>"}</p>
+      <select data-id="${o.id}">${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")
+    : "<p class='mute'>No orders yet. Share your link to get the first one.</p>");
+  $("#rf").onclick = adminOrders;
+  app.querySelectorAll("select").forEach(s => s.onchange = async () => {
+    const { error } = await sb.from("orders").update({ status: s.value }).eq("id", s.dataset.id);
+    if (error) alert("Could not update status.");
+  });
+}
+
+async function adminServices() {
+  const { data, error } = await sb.from("services").select("*").order("sort");
+  if (error) return app.innerHTML = note("Could not load services.", "err");
+  const row = s => `<div class="card" data-id="${s.id || ""}">
+    <input class="n" value="${esc(s.name)}" placeholder="Service name" aria-label="Name">
+    <div class="row" style="margin-top:8px"><input class="p" type="number" value="${s.price ?? ""}" placeholder="Price (K)" aria-label="Price">
+    <input class="t" value="${esc(s.price_note)}" placeholder="e.g. from" aria-label="Price note"></div>
+    <label style="font-weight:400"><input class="a" type="checkbox" style="width:auto" ${s.active !== false ? "checked" : ""}> Show to customers</label>
+    <button class="sm save">Save</button></div>`;
+  app.innerHTML = data.map(row).join("") + `<h3>Add a service</h3>` + row({ price: "" });
+  app.querySelectorAll(".card").forEach(c => c.querySelector(".save").onclick = async () => {
+    const rec = { name: c.querySelector(".n").value.trim(), price: Number(c.querySelector(".p").value), price_note: c.querySelector(".t").value.trim(), active: c.querySelector(".a").checked };
+    if (!rec.name || isNaN(rec.price)) return alert("Enter a name and price.");
+    const q = c.dataset.id ? sb.from("services").update(rec).eq("id", c.dataset.id) : sb.from("services").insert({ ...rec, sort: 99 });
+    const { error } = await q;
+    error ? alert("Could not save.") : adminServices();
+  });
+}
+
+window.addEventListener("hashchange", route);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+route();
+</script>
+</body>
+</html>
