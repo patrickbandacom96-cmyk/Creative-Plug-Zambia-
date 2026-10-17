@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Creative Plug Zambia</title>
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#16131f">
 <style>
 :root{--paper:#faf9f6;--ink:#16131f;--plug:#ffc72c;--mute:#6b6878;--line:#e4e1da;--ok:#1d7a46;--bad:#b3261e}
@@ -38,7 +40,9 @@ a.wa{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:
 </style>
 </head>
 <body>
-<header><h1>Creative <b>Plug</b> Zambia</h1><p>Plug into Creativity.</p></header>
+<header><h1>Creative <b>Plug</b> Zambia</h1><p>Plug into Creativity.</p>
+<button id="inst" class="sm" hidden style="margin-top:10px;background:var(--plug);border:0">Install app</button>
+<p id="hint" hidden style="margin-top:8px"></p></header>
 <nav id="nav"></nav>
 <main id="app"></main>
 
@@ -86,25 +90,40 @@ async function orderView() {
   app.innerHTML = `
     <label for="svc">What do you need?</label>
     <select id="svc">${data.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>
+    <label for="qt">Quantity</label>
+    <div class="row" style="align-items:center">
+      <button class="sm" id="mn" type="button" style="flex:0 0 56px;height:48px;font-size:24px" aria-label="Less">−</button>
+      <input id="qt" type="number" min="1" max="1000" value="1" inputmode="numeric" style="text-align:center">
+      <button class="sm" id="pl" type="button" style="flex:0 0 56px;height:48px;font-size:24px" aria-label="More">+</button>
+    </div>
     <div class="price" id="pr"></div>
+    <div class="mute" id="pu"></div>
     <label for="nm">Your name</label><input id="nm" autocomplete="name">
     <label for="ph">Phone number</label><input id="ph" type="tel" autocomplete="tel" placeholder="0977 000 000">
     <label for="dt">Details for the designer</label>
     <textarea id="dt" placeholder="Text, colours, event date, style…"></textarea>
     <div id="out"></div>
     <button class="go" id="send">Place order</button>`;
-  const show = () => { const s = data.find(x => x.id == $("#svc").value); $("#pr").textContent = money(s.price, s.price_note); };
-  $("#svc").onchange = show; show();
+  const qty = () => Math.max(1, Math.min(1000, parseInt($("#qt").value) || 1));
+  const show = () => {
+    const s = data.find(x => x.id == $("#svc").value), q = qty();
+    $("#pr").textContent = "Total: " + money(s.price * q, s.price_note);
+    $("#pu").textContent = q > 1 ? `K${s.price} each × ${q}` : "";
+  };
+  $("#svc").onchange = show; $("#qt").oninput = show;
+  $("#mn").onclick = () => { $("#qt").value = Math.max(1, qty() - 1); show(); };
+  $("#pl").onclick = () => { $("#qt").value = Math.min(1000, qty() + 1); show(); };
+  show();
   $("#send").onclick = async () => {
     const nm = $("#nm").value.trim(), ph = $("#ph").value.trim();
     if (!nm || ph.replace(/\D/g, "").length < 9) return $("#out").innerHTML = note("Enter your name and a valid phone number.", "err");
     $("#send").disabled = true; $("#send").textContent = "Sending…";
-    const { data: no, error } = await sb.rpc("create_order", { p_name: nm, p_phone: ph, p_service: Number($("#svc").value), p_details: $("#dt").value });
+    const { data: no, error } = await sb.rpc("create_order", { p_name: nm, p_phone: ph, p_service: Number($("#svc").value), p_details: $("#dt").value, p_qty: qty() });
     if (error) { $("#send").disabled = false; $("#send").textContent = "Place order"; return $("#out").innerHTML = note("Order failed. Please try again.", "err"); }
     try { localStorage.setItem("cpz_last", JSON.stringify({ no, ph })); } catch (e) {}
-    const s = data.find(x => x.id == $("#svc").value);
-    const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi CPZ, my order is ${no} (${s.name}). Name: ${nm}`)}`;
-    app.innerHTML = note(`Order placed! Your order number is ${no}. Keep it to track your order.`, "good") +
+    const s = data.find(x => x.id == $("#svc").value), q = qty();
+    const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi CPZ, my order is ${no} (${q} x ${s.name}). Name: ${nm}`)}`;
+    app.innerHTML = note(`Order placed! Your order number is ${no}. Total: ${money(s.price * q, s.price_note)}. Keep the number to track your order.`, "good") +
       `<p>Use <b>Track order</b> with your number and phone to see progress.</p><a class="wa" href="${wa}">Message CPZ on WhatsApp</a>`;
   };
 }
@@ -122,7 +141,7 @@ function trackView() {
     if (!data.length) return $("#out").innerHTML = note("No order found. Check the number and phone.", "err");
     const o = data[0];
     $("#out").innerHTML = `<div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
-      <p class="mute">${money(o.price, o.price_note)} · ${new Date(o.created_at).toLocaleDateString()}</p>
+      <p class="mute">Qty ${o.quantity} · Total ${money(o.price * o.quantity, o.price_note)} · ${new Date(o.created_at).toLocaleDateString()}</p>
       <span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span></div>`;
   };
 }
@@ -142,27 +161,77 @@ async function admin() {
     };
     return;
   }
-  if (tab !== "orders" && tab !== "services") tab = "orders";
-  tabs([["orders", "Orders"], ["services", "Services"], ["out", "Log out"]]);
+  if (!["orders", "sales", "services"].includes(tab)) tab = "orders";
+  tabs([["orders", "Orders"], ["sales", "Sales"], ["services", "Services"], ["out", "Log out"]]);
   nav.querySelector('[data-k="out"]').onclick = async () => { await sb.auth.signOut(); tab = "order"; admin(); };
-  tab === "orders" ? adminOrders() : adminServices();
+  tab === "orders" ? adminOrders() : tab === "sales" ? adminSales() : adminServices();
 }
 
 async function adminOrders() {
   app.innerHTML = "<p class='mute'>Loading…</p>";
   const { data, error } = await sb.from("orders").select("*").order("created_at", { ascending: false });
   if (error) return app.innerHTML = note("Could not load orders.", "err");
+  ORDERS = data;
   app.innerHTML = `<button class="sm" id="rf">Refresh</button>` + (data.length ? data.map(o => `
     <div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
-      <div class="mute">${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a> · ${money(o.price, o.price_note)}</div>
+      <div class="mute">${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
+      <div class="mute">Qty ${o.quantity} · Total <b>${money(o.price * o.quantity, o.price_note)}</b></div>
       <p>${esc(o.details) || "<span class='mute'>No details</span>"}</p>
-      <select data-id="${o.id}">${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")
+      <select class="st" data-id="${o.id}">${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select>${payBlock(o)}</div>`).join("")
     : "<p class='mute'>No orders yet. Share your link to get the first one.</p>");
   $("#rf").onclick = adminOrders;
-  app.querySelectorAll("select").forEach(s => s.onchange = async () => {
+  app.querySelectorAll("select.st").forEach(s => s.onchange = async () => {
     const { error } = await sb.from("orders").update({ status: s.value }).eq("id", s.dataset.id);
     if (error) alert("Could not update status.");
   });
+  app.querySelectorAll(".sp").forEach(b => b.onclick = async () => {
+    const c = b.closest(".card");
+    const { error } = await sb.from("orders").update({ paid: Number(c.querySelector(".pa").value) || 0, pay_method: c.querySelector(".pm").value }).eq("id", b.dataset.id);
+    error ? alert("Could not save payment.") : adminOrders();
+  });
+  app.querySelectorAll(".iv").forEach(b => b.onclick = () => printDoc(ORDERS.find(o => o.id == b.dataset.id)));
+}
+
+let ORDERS = [];
+const payBlock = o => {
+  const t = o.price * o.quantity, p = Number(o.paid);
+  return `<div class="mute" style="margin-top:10px">Paid K${p} · Balance K${Math.max(0, t - p)}</div>
+  <div class="row" style="margin-top:6px"><input class="pa" type="number" placeholder="Amount paid (K)" value="${p || ""}" aria-label="Amount paid">
+  <select class="pm" aria-label="Payment method">${["Cash", "Mobile Money", "Bank"].map(m => `<option ${m === o.pay_method ? "selected" : ""}>${m}</option>`).join("")}</select></div>
+  <div class="row" style="margin-top:6px"><button class="sm sp" data-id="${o.id}">Save payment</button><button class="sm iv" data-id="${o.id}">${p >= t && t > 0 ? "Receipt" : "Invoice"}</button></div>`;
+};
+
+function printDoc(o) {
+  const t = o.price * o.quantity, paid = Number(o.paid), rc = paid >= t && t > 0;
+  const w = window.open("", "_blank");
+  if (!w) return alert("Allow pop-ups to open the document.");
+  w.document.write(`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>${rc ? "Receipt" : "Invoice"} ${esc(o.order_no)}</title>
+<body style="font:16px system-ui,sans-serif;max-width:560px;margin:auto;padding:20px">
+<h1 style="margin:0">Creative Plug Zambia</h1><p style="margin:2px 0 18px;color:#666">Plug into Creativity. · WhatsApp 0977934234</p>
+<h2>${rc ? "RECEIPT" : "INVOICE"} ${esc(o.order_no)}</h2>
+<p>Date: ${new Date(o.created_at).toLocaleDateString()}<br>Customer: ${esc(o.customer_name)}<br>Phone: ${esc(o.phone)}</p>
+<table style="width:100%;border-collapse:collapse"><tr style="text-align:left;border-bottom:2px solid #000"><th>Item</th><th>Qty</th><th>Price</th><th style="text-align:right">Total</th></tr>
+<tr><td>${esc(o.service_name)}</td><td>${o.quantity}</td><td>K${o.price}</td><td style="text-align:right">${money(t, o.price_note)}</td></tr></table>
+<p style="text-align:right;font-size:18px">Paid: K${paid}${o.pay_method ? " (" + esc(o.pay_method) + ")" : ""}<br><b>Balance: K${Math.max(0, t - paid)}</b></p>
+<p style="color:#666">Thank you for choosing CPZ.</p><button onclick="print()" style="padding:12px 18px;font-size:16px">Print / Save as PDF</button></body>`);
+  w.document.close();
+}
+
+async function adminSales() {
+  app.innerHTML = "<p class='mute'>Loading…</p>";
+  const { data, error } = await sb.from("orders").select("*");
+  if (error) return app.innerHTML = note("Could not load sales.", "err");
+  const tot = o => o.price * o.quantity, now = new Date();
+  const sum = (a, f) => a.reduce((x, o) => x + f(o), 0);
+  const day = data.filter(o => new Date(o.created_at).toDateString() === now.toDateString());
+  const mon = data.filter(o => { const d = new Date(o.created_at); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+  const box = (t, a) => `<div class="card"><h3>${t}</h3><div class="mute">${a.length} orders</div>
+    <div>Billed <b>K${sum(a, tot)}</b> · Received <b>K${sum(a, o => Number(o.paid))}</b></div>
+    <div>Outstanding <b>K${sum(a, o => Math.max(0, tot(o) - Number(o.paid)))}</b></div></div>`;
+  const by = {};
+  data.forEach(o => { const b = by[o.service_name] = by[o.service_name] || { n: 0, q: 0, t: 0 }; b.n++; b.q += o.quantity; b.t += tot(o); });
+  app.innerHTML = box("Today", day) + box("This month", mon) + box("All time", data) + "<h3>By service</h3>" +
+    (Object.entries(by).sort((a, b) => b[1].t - a[1].t).map(([k, v]) => `<div class="card"><h3>${esc(k)}</h3><div class="mute">${v.n} orders · ${v.q} items · K${v.t}</div></div>`).join("") || "<p class='mute'>No sales yet.</p>");
 }
 
 async function adminServices() {
@@ -183,6 +252,17 @@ async function adminServices() {
     error ? alert("Could not save.") : adminServices();
   });
 }
+
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+let dip;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); dip = e; if (!standalone) $("#inst").hidden = false; });
+$("#inst").onclick = async () => { if (!dip) return; dip.prompt(); await dip.userChoice; dip = null; $("#inst").hidden = true; };
+addEventListener("appinstalled", () => { $("#inst").hidden = true; $("#hint").hidden = true; });
+setTimeout(() => {
+  if (standalone || !$("#inst").hidden) return;
+  $("#hint").textContent = /iphone|ipad/i.test(navigator.userAgent) ? "To install: tap Share, then Add to Home Screen." : "To install: tap the ⋮ menu, then Install app.";
+  $("#hint").hidden = false;
+}, 2500);
 
 window.addEventListener("hashchange", route);
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

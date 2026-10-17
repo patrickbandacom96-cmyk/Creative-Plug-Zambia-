@@ -1,16 +1,24 @@
 {
   "name": "Creative Plug Zambia",
   "short_name": "CPZ",
-  "description": "Order posters, flyers, banners, logos and more. Plug into Creativity.",
-  "start_url": "./index.html",
+  "description": "Order designs from Creative Plug Zambia",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#101418",
-  "theme_color": "#101418",
+  "background_color": "#16131f",
+  "theme_color": "#16131f",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
