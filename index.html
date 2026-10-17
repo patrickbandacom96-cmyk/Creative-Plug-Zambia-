@@ -1,415 +1,192 @@
- <!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Creative Plug Zambia - Order a design</title>
-<meta name="description" content="Order posters, flyers, banners, logos and more from Creative Plug Zambia.">
-<meta name="theme-color" content="#101418">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creative Plug Zambia</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="cpz.css">
+<meta name="theme-color" content="#16131f">
 <style>
-.hero{background:var(--ink);color:#fff;padding:30px 0 34px;position:relative;overflow:hidden}
-.hero h1{font-size:clamp(38px,11vw,54px);font-weight:800;max-width:9ch}
-.hero p{color:#C9D1CC;margin:14px 0 22px;max-width:21ch;font-size:17px}
-.hero .plug{position:absolute;right:-30px;bottom:-34px;width:150px;height:150px;transform:rotate(-14deg)}
-.hero .wrap{position:relative}
-.last{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:2px solid var(--green);border-radius:var(--r);padding:14px 16px;margin-top:16px}
-.last b{display:block}
-.last .grow{flex:1;min-width:0}
-.svc-list{display:grid;gap:10px}
-.svc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:62px;padding:12px 16px;text-align:left;background:#fff;border:2px solid var(--line);border-radius:var(--r);font-weight:700;font-size:17px;transition:border-color .15s,background .15s}
-.svc:hover{border-color:var(--green)}
-.svc .price{font-weight:800;white-space:nowrap}
-.svc .price small{font-weight:600;font-size:14px;opacity:.8}
-.svc[aria-checked=true]{background:var(--green);border-color:var(--green);color:#fff}
-.svc[aria-checked=true]::after{content:"";width:10px;height:18px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-4px,-2px);order:-1;margin-right:2px}
-.skel{height:62px;border-radius:var(--r);background:linear-gradient(90deg,#E3E8E4 25%,#F1F4F2 50%,#E3E8E4 75%);background-size:200% 100%;animation:sh 1.2s linear infinite}
-@keyframes sh{to{background-position:-200% 0}}
-.qty{display:flex;align-items:center;gap:10px}
-.qty button{width:52px;height:52px;border-radius:var(--r-s);border:2px solid var(--ink);background:#fff;font-size:26px;font-weight:700;line-height:1}
-.qty input{width:84px;text-align:center;font-size:20px;font-weight:800}
-.stub{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;margin:6px 0 18px}
-.stub .tear{position:relative;border-top:2px dashed var(--line);margin:16px 0}
-.stub .tear::before,.stub .tear::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--mist)}
-.stub .tear::before{left:-31px}.stub .tear::after{right:-31px}
-.stub .what{font-weight:700;font-size:18px}
-.stub .calc{color:var(--muted);margin-top:2px}
-.stub .total{font-size:52px;font-weight:800;letter-spacing:-.03em;line-height:1}
-.stub .total small{font-size:18px;font-weight:700;letter-spacing:0;margin-right:6px;color:var(--muted)}
-.stub .note{margin-top:8px;color:var(--amber);font-weight:600;font-size:15px}
-.stub .empty{color:var(--muted)}
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 30px}
-footer{padding:10px 0 40px;color:var(--muted);font-size:14px;text-align:center}
-.sheet-bg{position:fixed;inset:0;z-index:40;background:rgba(16,20,24,.6);display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom))}
-.sheet h2{font-size:24px;margin-bottom:12px}
-.rows{margin:0 0 14px;padding:0}
-.rows div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
-.rows dt{color:var(--muted)}
-.rows dd{margin:0;font-weight:650;text-align:right;overflow-wrap:anywhere}
-.rows .big dd{font-size:22px;font-weight:800}
-.stack{display:grid;gap:10px}
-.done-n{font-size:clamp(36px,11vw,50px);font-weight:800;letter-spacing:-.02em;margin:8px 0 4px}
-.steps{list-style:none;display:flex;margin:18px 0 6px;padding:0}
-.steps li{flex:1;text-align:center;font-size:13px;font-weight:650;color:var(--muted);position:relative;padding-top:26px}
-.steps li::before{content:"";position:absolute;top:4px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;border:3px solid var(--line);z-index:1}
-.steps li::after{content:"";position:absolute;top:10px;left:-50%;width:100%;height:3px;background:var(--line)}
-.steps li:first-child::after{display:none}
-.steps li.on{color:var(--ink)}
-.steps li.on::before{background:var(--green);border-color:var(--green)}
-.steps li.on::after{background:var(--green)}
-.steps li.now::before{background:var(--volt);border-color:var(--volt);box-shadow:0 0 0 5px rgba(255,107,26,.25)}
-header .brand{font-size:16px;min-width:0}
-header .brand span{line-height:1.15}
-#nav-track{white-space:nowrap;padding:0 12px;flex:none}
+:root{--paper:#faf9f6;--ink:#16131f;--plug:#ffc72c;--mute:#6b6878;--line:#e4e1da;--ok:#1d7a46;--bad:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+header{background:var(--ink);color:#fff;padding:20px 16px 16px}
+header h1{margin:0;font-size:24px;letter-spacing:-.5px}
+header h1 b{color:var(--plug)}
+header p{margin:2px 0 0;color:#bdb9cc;font-size:14px}
+nav{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper)}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:#fff;border-radius:10px;font:inherit;font-weight:600;color:var(--mute)}
+nav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{padding:16px;max-width:560px;margin:0 auto}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 4px}
+input,select,textarea{width:100%;padding:12px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+textarea{min-height:90px}
+button.go{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:var(--plug);color:var(--ink);font:inherit;font-weight:700;font-size:17px}
+button.sm{padding:8px 12px;border:1px solid var(--ink);background:#fff;border-radius:8px;font:inherit;font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--plug);outline-offset:1px}
+.price{font-size:28px;font-weight:800;margin:10px 0 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.card h3{margin:0 0 4px;font-size:17px}
+.mute{color:var(--mute);font-size:14px}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--ink);color:#fff;font-size:13px;font-weight:600}
+.tag.Pending{background:#8a6d00}.tag.Confirmed{background:#25508f}.tag.Completed{background:var(--ok)}.tag.InProgress{background:#7a3fb0}
+.msg{padding:12px;border-radius:10px;margin:12px 0;background:#fff3cd}
+.msg.err{background:#fde7e5;color:var(--bad)}
+.msg.good{background:#e3f4ea;color:var(--ok)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+a.wa{display:block;text-align:center;margin-top:10px;padding:12px;border-radius:12px;background:#1d7a46;color:#fff;font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
-<header class="bar">
-  <div class="wrap">
-    <a class="brand" href="./" aria-label="Creative Plug Zambia home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9.5" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff"/><rect x="19.1" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff"/><rect x="5.5" y="9" width="21" height="13" rx="5" fill="#FF6B1A"/><path d="M16 22v3.5c0 2.4-2.4 3-4.2 3" fill="none" stroke="#0B6B45" stroke-width="3.2" stroke-linecap="round"/></svg>
-      <span>Creative Plug Zambia</span>
-    </a>
-    <span class="spacer"></span>
-    <button class="btn btn-ghost" id="nav-track" type="button">Track order</button>
-  </div>
-</header>
+<header><h1>Creative <b>Plug</b> Zambia</h1><p>Plug into Creativity.</p></header>
+<nav id="nav"></nav>
+<main id="app"></main>
 
-<!-- ORDER -->
-<main id="view-order">
-  <section class="hero">
-    <svg class="plug" viewBox="0 0 32 32" aria-hidden="true"><rect x="9.5" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff" opacity=".9"/><rect x="19.1" y="1.5" width="3.4" height="9" rx="1.2" fill="#fff" opacity=".9"/><rect x="5.5" y="9" width="21" height="13" rx="5" fill="#FF6B1A"/><path d="M16 22v3.5c0 2.4-2.4 3-4.2 3" fill="none" stroke="#0B6B45" stroke-width="3.2" stroke-linecap="round"/></svg>
-    <div class="wrap">
-      <h1>Plug into Creativity.</h1>
-      <p>Pick a design, tell us what you need, and we start on it.</p>
-      <a class="btn btn-volt" href="#services">Choose a service</a>
-    </div>
-  </section>
-
-  <div class="wrap">
-    <button class="last" id="last" type="button" hidden>
-      <span class="grow"><b id="last-n"></b><span id="last-s" style="color:var(--muted)">Your latest order</span></span>
-      <span class="pill" id="last-pill"></span>
-    </button>
-
-    <section class="sec" id="services">
-      <h2>1. Choose a service</h2>
-      <p class="lead">Prices are per design. Tap one to select it.</p>
-      <div id="cfg-warn" class="banner bad" hidden>The app is not connected to the database yet. Open config.js and paste your Supabase URL and anon key.</div>
-      <div id="svc-list" class="svc-list" role="radiogroup" aria-label="Services">
-        <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
-      </div>
-      <div id="svc-err" class="banner bad" hidden>
-        <div id="svc-err-msg"></div>
-        <button class="btn btn-line btn-sm" id="svc-retry" type="button" style="margin-top:10px">Try again</button>
-      </div>
-    </section>
-
-    <section class="sec" id="details" hidden>
-      <h2>2. How many?</h2>
-      <p class="lead">Your total updates as you change the quantity.</p>
-      <div class="qty" style="margin-bottom:16px">
-        <button type="button" id="q-minus" aria-label="Fewer">&minus;</button>
-        <input id="qty" type="number" inputmode="numeric" min="1" max="100" value="1" aria-label="Quantity">
-        <button type="button" id="q-plus" aria-label="More">+</button>
-      </div>
-      <div class="stub" aria-live="polite">
-        <div class="what" id="s-what"></div>
-        <div class="calc" id="s-calc"></div>
-        <div class="tear"></div>
-        <div class="total"><small>Total</small><span id="s-total"></span></div>
-        <div class="note" id="s-note" hidden>Logo prices start at K100. We confirm the final price with you before we begin.</div>
-      </div>
-
-      <h2 style="margin-top:28px">3. Your details</h2>
-      <p class="lead" style="margin-bottom:14px">We use these to contact you about your design.</p>
-      <label class="field"><span>Your name</span><input id="f-name" type="text" autocomplete="name" maxlength="100"><div class="err" id="e-name" hidden></div></label>
-      <label class="field"><span>Phone number</span><input id="f-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="097 123 4567" maxlength="30"><small>WhatsApp number if you have one.</small><div class="err" id="e-phone" hidden></div></label>
-      <label class="field"><span>Email (optional)</span><input id="f-email" type="email" autocomplete="email" maxlength="120"><div class="err" id="e-email" hidden></div></label>
-      <label class="field"><span>When do you need it? (optional)</span><input id="f-date" type="date"><div class="err" id="e-date" hidden></div></label>
-      <label class="field"><span>Instructions (optional)</span><textarea id="f-note" maxlength="1000" placeholder="Event name, colours, text to include, size, anything we should know"></textarea></label>
-      <button class="btn btn-volt btn-block" id="review" type="button">Review order</button>
-    </section>
-
-    <section class="sec">
-      <h2>Need help?</h2>
-      <p class="lead">Talk to us directly.</p>
-      <div class="contact">
-        <a class="btn btn-green" id="c-call" href="#">Call us</a>
-        <a class="btn btn-line" id="c-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
-      </div>
-    </section>
-    <footer>Creative Plug Zambia. Plug into Creativity.</footer>
-  </div>
-</main>
-
-<!-- DONE -->
-<main id="view-done" hidden>
-  <div class="wrap sec">
-    <div class="pill st-Completed">Order sent</div>
-    <div class="done-n" id="d-num"></div>
-    <p class="lead" style="color:var(--muted)">Keep this number. You need it with your phone number to check progress.</p>
-    <dl class="rows card" style="margin-top:16px;padding-top:6px;padding-bottom:6px" id="d-rows"></dl>
-    <div class="stack">
-      <a class="btn btn-green btn-block" id="d-wa" target="_blank" rel="noopener" href="#">Send to us on WhatsApp</a>
-      <button class="btn btn-line btn-block" id="d-track" type="button">Check order progress</button>
-      <button class="btn btn-line btn-block" id="d-new" type="button">Place another order</button>
-    </div>
-  </div>
-</main>
-
-<!-- TRACK -->
-<main id="view-track" hidden>
-  <div class="wrap sec">
-    <h2>Check your order</h2>
-    <p class="lead">Enter the order number and the phone number you ordered with.</p>
-    <label class="field"><span>Order number</span><input id="t-num" type="text" placeholder="CPZ-0001" autocapitalize="characters" autocomplete="off" maxlength="20"></label>
-    <label class="field"><span>Phone number</span><input id="t-phone" type="tel" inputmode="tel" maxlength="30"></label>
-    <div class="stack">
-      <button class="btn btn-green btn-block" id="t-go" type="button">Check progress</button>
-      <button class="btn btn-line btn-block" id="t-back" type="button">Back to services</button>
-    </div>
-    <div id="t-msg" class="banner" hidden></div>
-    <div id="t-out" class="card" style="margin-top:18px" hidden></div>
-  </div>
-</main>
-
-<!-- REVIEW SHEET -->
-<div class="sheet-bg" id="sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title">
-    <h2 id="sh-title">Check your order</h2>
-    <dl class="rows" id="sh-rows"></dl>
-    <div id="sh-note" class="banner" hidden>Logo prices start at K100. We confirm the final price with you before we begin.</div>
-    <div id="sh-err" class="banner bad" hidden></div>
-    <div class="stack">
-      <button class="btn btn-volt btn-block" id="sh-send" type="button">Send order</button>
-      <button class="btn btn-line btn-block" id="sh-edit" type="button">Change something</button>
-    </div>
-  </div>
-</div>
-
-<script src="config.js"></script>
-<script src="cpz.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
-(function () {
-  'use strict';
-  var C = CPZ, el = C.el;
-  var $ = function (id) { return document.getElementById(id); };
-  var STEPS = ['Pending', 'Confirmed', 'In Progress', 'Completed'];
-  var state = { services: [], sel: null, qty: 1, sending: false };
+/* ====== 1. PASTE YOUR SUPABASE DETAILS HERE ====== */
+const SUPABASE_URL = "https://pzosbgpdohtupzyyloyn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zIkkukFX1b8_DxHI8g9yuQ_bNRUJE4r";
+const WHATSAPP = "260977934234";
+/* ================================================= */
 
-  /* ---------- views ---------- */
-  function show(name) {
-    ['order', 'done', 'track'].forEach(function (v) { $('view-' + v).hidden = v !== name; });
-    window.scrollTo(0, 0);
-  }
+const configured = !SUPABASE_URL.startsWith("PASTE");
+const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+const $ = s => document.querySelector(s);
+const app = $("#app"), nav = $("#nav");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = (p, n) => (n ? n + " " : "") + "K" + Number(p);
+const STATUSES = ["Pending", "Confirmed", "In Progress", "Completed"];
+let tab = "order";
 
-  /* ---------- contact links ---------- */
-  var cfg = C.config;
-  $('c-call').href = 'tel:' + (cfg.PHONE_TEL || '');
-  $('c-call').textContent = 'Call ' + (cfg.PHONE_DISPLAY || '');
-  $('c-wa').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER || '');
+function tabs(list) {
+  nav.innerHTML = list.map(([k, t]) => `<button data-k="${k}" class="${k === tab ? "on" : ""}">${t}</button>`).join("");
+  nav.querySelectorAll("button").forEach(b => b.onclick = () => { tab = b.dataset.k; route(); });
+}
+const note = (t, c = "") => `<div class="msg ${c}">${esc(t)}</div>`;
 
-  /* ---------- services ---------- */
-  function priceNode(s) {
-    var p = el('span', { class: 'price' });
-    if (s.price_is_starting) { p.appendChild(el('small', { text: 'From' })); p.appendChild(document.createTextNode(' ')); }
-    p.appendChild(document.createTextNode(C.money(s.price)));
-    return p;
+async function route() {
+  if (!configured) {
+    nav.innerHTML = "";
+    app.innerHTML = note("App is not connected to the database. Open index.html and paste your Supabase URL and anon key at the top of the script.", "err");
+    return;
   }
-  function renderServices() {
-    var box = $('svc-list'); box.textContent = '';
-    state.services.forEach(function (s) {
-      var b = el('button', { type: 'button', class: 'svc', role: 'radio', 'aria-checked': 'false', 'data-id': s.id }, [
-        el('span', { text: s.name }), priceNode(s)
-      ]);
-      b.addEventListener('click', function () { select(s); });
-      box.appendChild(b);
-    });
-    if (!state.services.length) box.appendChild(el('div', { class: 'banner', text: 'No services are available right now. Please check back soon or call us.' }));
-  }
-  function loadServices() {
-    $('svc-err').hidden = true; $('cfg-warn').hidden = C.configured;
-    if (!C.configured) { $('svc-list').textContent = ''; return; }
-    $('svc-list').textContent = '';
-    for (var i = 0; i < 4; i++) $('svc-list').appendChild(el('div', { class: 'skel' }));
-    C.customer.services().then(function (rows) {
-      state.services = rows || []; renderServices();
-    }).catch(function (e) {
-      $('svc-list').textContent = '';
-      $('svc-err-msg').textContent = e.message || 'Could not load services.';
-      $('svc-err').hidden = false;
-    });
-  }
-  $('svc-retry').addEventListener('click', loadServices);
+  if (location.hash === "#admin") return admin();
+  if (tab !== "order" && tab !== "track") tab = "order";
+  tabs([["order", "Order"], ["track", "Track order"]]);
+  tab === "order" ? orderView() : trackView();
+}
 
-  function select(s) {
-    state.sel = s;
-    [].forEach.call($('svc-list').children, function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-id') === String(s.id))); });
-    var first = $('details').hidden; $('details').hidden = false;
-    updateStub();
-    if (first) $('details').scrollIntoView({ block: 'start' });
-  }
+/* ---------- Customer: order ---------- */
+async function orderView() {
+  app.innerHTML = "<p class='mute'>Loading services…</p>";
+  const { data, error } = await sb.from("services").select("*").eq("active", true).order("sort");
+  if (error) return app.innerHTML = note("Could not load services. Check your connection and try again.", "err");
+  if (!data.length) return app.innerHTML = note("No services are available right now.");
+  app.innerHTML = `
+    <label for="svc">What do you need?</label>
+    <select id="svc">${data.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>
+    <div class="price" id="pr"></div>
+    <label for="nm">Your name</label><input id="nm" autocomplete="name">
+    <label for="ph">Phone number</label><input id="ph" type="tel" autocomplete="tel" placeholder="0977 000 000">
+    <label for="dt">Details for the designer</label>
+    <textarea id="dt" placeholder="Text, colours, event date, style…"></textarea>
+    <div id="out"></div>
+    <button class="go" id="send">Place order</button>`;
+  const show = () => { const s = data.find(x => x.id == $("#svc").value); $("#pr").textContent = money(s.price, s.price_note); };
+  $("#svc").onchange = show; show();
+  $("#send").onclick = async () => {
+    const nm = $("#nm").value.trim(), ph = $("#ph").value.trim();
+    if (!nm || ph.replace(/\D/g, "").length < 9) return $("#out").innerHTML = note("Enter your name and a valid phone number.", "err");
+    $("#send").disabled = true; $("#send").textContent = "Sending…";
+    const { data: no, error } = await sb.rpc("create_order", { p_name: nm, p_phone: ph, p_service: Number($("#svc").value), p_details: $("#dt").value });
+    if (error) { $("#send").disabled = false; $("#send").textContent = "Place order"; return $("#out").innerHTML = note("Order failed. Please try again.", "err"); }
+    try { localStorage.setItem("cpz_last", JSON.stringify({ no, ph })); } catch (e) {}
+    const s = data.find(x => x.id == $("#svc").value);
+    const wa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi CPZ, my order is ${no} (${s.name}). Name: ${nm}`)}`;
+    app.innerHTML = note(`Order placed! Your order number is ${no}. Keep it to track your order.`, "good") +
+      `<p>Use <b>Track order</b> with your number and phone to see progress.</p><a class="wa" href="${wa}">Message CPZ on WhatsApp</a>`;
+  };
+}
 
-  /* ---------- quantity + total (display only; the server calculates the real total) ---------- */
-  function setQty(n) {
-    n = parseInt(n, 10); if (isNaN(n) || n < 1) n = 1; if (n > 100) n = 100;
-    state.qty = n; $('qty').value = n; updateStub();
-  }
-  $('q-minus').addEventListener('click', function () { setQty(state.qty - 1); });
-  $('q-plus').addEventListener('click', function () { setQty(state.qty + 1); });
-  $('qty').addEventListener('change', function () { setQty($('qty').value); });
-  $('qty').addEventListener('input', function () { var n = parseInt($('qty').value, 10); if (n >= 1 && n <= 100) { state.qty = n; updateStub(); } });
+/* ---------- Customer: track ---------- */
+function trackView() {
+  let last = {}; try { last = JSON.parse(localStorage.getItem("cpz_last")) || {}; } catch (e) {}
+  app.innerHTML = `
+    <label for="no">Order number</label><input id="no" placeholder="CPZ-0001" value="${esc(last.no)}">
+    <label for="ph">Phone number used for the order</label><input id="ph" type="tel" value="${esc(last.ph)}">
+    <button class="go" id="chk">Check status</button><div id="out"></div>`;
+  $("#chk").onclick = async () => {
+    const { data, error } = await sb.rpc("track_order", { p_no: $("#no").value, p_phone: $("#ph").value });
+    if (error) return $("#out").innerHTML = note("Could not check. Try again.", "err");
+    if (!data.length) return $("#out").innerHTML = note("No order found. Check the number and phone.", "err");
+    const o = data[0];
+    $("#out").innerHTML = `<div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
+      <p class="mute">${money(o.price, o.price_note)} · ${new Date(o.created_at).toLocaleDateString()}</p>
+      <span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span></div>`;
+  };
+}
 
-  function updateStub() {
-    var s = state.sel; if (!s) return;
-    var from = s.price_is_starting ? 'From ' : '';
-    $('s-what').textContent = s.name;
-    $('s-calc').textContent = from + C.money(s.price) + ' \u00D7 ' + state.qty;
-    $('s-total').textContent = from + C.money(Number(s.price) * state.qty);
-    $('s-note').hidden = !s.price_is_starting;
+/* ---------- Admin (open yourlink/#admin) ---------- */
+async function admin() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    nav.innerHTML = "";
+    app.innerHTML = `<h2>Admin login</h2>
+      <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+      <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+      <div id="out"></div><button class="go" id="in">Log in</button>`;
+    $("#in").onclick = async () => {
+      const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
+      error ? $("#out").innerHTML = note("Wrong email or password.", "err") : admin();
+    };
+    return;
   }
+  if (tab !== "orders" && tab !== "services") tab = "orders";
+  tabs([["orders", "Orders"], ["services", "Services"], ["out", "Log out"]]);
+  nav.querySelector('[data-k="out"]').onclick = async () => { await sb.auth.signOut(); tab = "order"; admin(); };
+  tab === "orders" ? adminOrders() : adminServices();
+}
 
-  /* ---------- validation ---------- */
-  function setErr(id, msg) {
-    var e = $('e-' + id), f = $('f-' + id);
-    e.textContent = msg || ''; e.hidden = !msg;
-    f.classList.toggle('invalid', !!msg);
-    if (msg) f.setAttribute('aria-invalid', 'true'); else f.removeAttribute('aria-invalid');
-    return !msg;
-  }
-  function collect() {
-    var name = $('f-name').value.trim(), phone = $('f-phone').value.trim(), email = $('f-email').value.trim(), date = $('f-date').value;
-    var today = new Date(); today.setHours(0, 0, 0, 0);
-    var ok = true, firstBad = null;
-    function chk(id, good, msg) { var r = setErr(id, good ? '' : msg); if (!r) { ok = false; firstBad = firstBad || $('f-' + id); } }
-    chk('name', name.length > 0, 'Enter your name.');
-    chk('phone', C.digits(phone).length >= 9, 'Enter a phone number with at least 9 digits.');
-    chk('email', !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'That email does not look right.');
-    chk('date', !date || new Date(date + 'T00:00:00') >= today, 'Pick today or a later date.');
-    if (!ok) { firstBad.focus(); firstBad.scrollIntoView({ block: 'center' }); return null; }
-    return { name: name, phone: phone, email: email, date: date, instructions: $('f-note').value.trim() };
-  }
-
-  /* ---------- review + send ---------- */
-  function row(dt, dd, cls) { return el('div', { class: cls || '' }, [el('dt', { text: dt }), el('dd', { text: dd })]); }
-  var pending = null;
-  $('review').addEventListener('click', function () {
-    if (!state.sel) { C.toast('Choose a service first.', true); return; }
-    var d = collect(); if (!d) return;
-    pending = d; var s = state.sel, from = s.price_is_starting ? 'From ' : '';
-    var rows = $('sh-rows'); rows.textContent = '';
-    rows.appendChild(row('Service', s.name));
-    rows.appendChild(row('Price each', from + C.money(s.price)));
-    rows.appendChild(row('Quantity', String(state.qty)));
-    rows.appendChild(row('Name', d.name));
-    rows.appendChild(row('Phone', d.phone));
-    if (d.email) rows.appendChild(row('Email', d.email));
-    if (d.date) rows.appendChild(row('Needed by', new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })));
-    if (d.instructions) rows.appendChild(row('Instructions', d.instructions));
-    rows.appendChild(row('Total', from + C.money(Number(s.price) * state.qty), 'big'));
-    $('sh-note').hidden = !s.price_is_starting; $('sh-err').hidden = true;
-    $('sheet').hidden = false; $('sh-send').focus();
+async function adminOrders() {
+  app.innerHTML = "<p class='mute'>Loading…</p>";
+  const { data, error } = await sb.from("orders").select("*").order("created_at", { ascending: false });
+  if (error) return app.innerHTML = note("Could not load orders.", "err");
+  app.innerHTML = `<button class="sm" id="rf">Refresh</button>` + (data.length ? data.map(o => `
+    <div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
+      <div class="mute">${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a> · ${money(o.price, o.price_note)}</div>
+      <p>${esc(o.details) || "<span class='mute'>No details</span>"}</p>
+      <select data-id="${o.id}">${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select></div>`).join("")
+    : "<p class='mute'>No orders yet. Share your link to get the first one.</p>");
+  $("#rf").onclick = adminOrders;
+  app.querySelectorAll("select").forEach(s => s.onchange = async () => {
+    const { error } = await sb.from("orders").update({ status: s.value }).eq("id", s.dataset.id);
+    if (error) alert("Could not update status.");
   });
-  $('sh-edit').addEventListener('click', function () { $('sheet').hidden = true; });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !state.sending) $('sheet').hidden = true; });
+}
 
-  $('sh-send').addEventListener('click', function () {
-    if (state.sending || !pending) return;
-    state.sending = true; var b = $('sh-send'); b.disabled = true; b.textContent = 'Sending\u2026'; $('sh-err').hidden = true;
-    var d = pending, s = state.sel, qty = state.qty;
-    C.customer.createOrder({ serviceId: s.id, quantity: qty, name: d.name, phone: d.phone, email: d.email, date: d.date, instructions: d.instructions })
-      .then(function (num) {
-        num = String(num);
-        return C.customer.getOrder(num, d.phone).catch(function () { return null; }).then(function (row) {
-          finish(num, d, row || { service_name: s.name, quantity: qty, unit_price: s.price, total: Number(s.price) * qty, price_is_starting: s.price_is_starting, status: 'Pending' });
-        });
-      })
-      .catch(function (e) { $('sh-err').textContent = e.message || 'Could not send your order. Try again.'; $('sh-err').hidden = false; })
-      .then(function () { state.sending = false; b.disabled = false; b.textContent = 'Send order'; });
+async function adminServices() {
+  const { data, error } = await sb.from("services").select("*").order("sort");
+  if (error) return app.innerHTML = note("Could not load services.", "err");
+  const row = s => `<div class="card" data-id="${s.id || ""}">
+    <input class="n" value="${esc(s.name)}" placeholder="Service name" aria-label="Name">
+    <div class="row" style="margin-top:8px"><input class="p" type="number" value="${s.price ?? ""}" placeholder="Price (K)" aria-label="Price">
+    <input class="t" value="${esc(s.price_note)}" placeholder="e.g. from" aria-label="Price note"></div>
+    <label style="font-weight:400"><input class="a" type="checkbox" style="width:auto" ${s.active !== false ? "checked" : ""}> Show to customers</label>
+    <button class="sm save">Save</button></div>`;
+  app.innerHTML = data.map(row).join("") + `<h3>Add a service</h3>` + row({ price: "" });
+  app.querySelectorAll(".card").forEach(c => c.querySelector(".save").onclick = async () => {
+    const rec = { name: c.querySelector(".n").value.trim(), price: Number(c.querySelector(".p").value), price_note: c.querySelector(".t").value.trim(), active: c.querySelector(".a").checked };
+    if (!rec.name || isNaN(rec.price)) return alert("Enter a name and price.");
+    const q = c.dataset.id ? sb.from("services").update(rec).eq("id", c.dataset.id) : sb.from("services").insert({ ...rec, sort: 99 });
+    const { error } = await q;
+    error ? alert("Could not save.") : adminServices();
   });
+}
 
-  function finish(num, d, o) {
-    try { localStorage.setItem('cpz_last', JSON.stringify({ n: num, p: d.phone })); } catch (e) {}
-    $('sheet').hidden = true;
-    $('d-num').textContent = num;
-    var from = o.price_is_starting ? 'From ' : '';
-    var rows = $('d-rows'); rows.textContent = '';
-    rows.appendChild(row('Service', o.service_name));
-    rows.appendChild(row('Quantity', String(o.quantity)));
-    rows.appendChild(row('Price each', from + C.money(o.unit_price)));
-    rows.appendChild(row('Total', from + C.money(o.total), 'big'));
-    rows.appendChild(row('Status', o.status));
-    var msg = 'Hello Creative Plug Zambia, I just placed order ' + num + ' (' + o.service_name + ' x ' + o.quantity + ', ' + from + C.money(o.total) + '). My name is ' + d.name + '.';
-    $('d-wa').href = 'https://wa.me/' + (cfg.WHATSAPP_NUMBER || '') + '?text=' + encodeURIComponent(msg);
-    $('t-num').value = num; $('t-phone').value = d.phone;
-    resetForm(); show('done'); loadLast();
-  }
-  function resetForm() {
-    state.sel = null; setQty(1); ['f-name', 'f-phone', 'f-email', 'f-date', 'f-note'].forEach(function (i) { $(i).value = ''; });
-    ['name', 'phone', 'email', 'date'].forEach(function (i) { setErr(i, ''); });
-    $('details').hidden = true; [].forEach.call($('svc-list').children, function (b) { b.setAttribute('aria-checked', 'false'); });
-  }
-  $('d-new').addEventListener('click', function () { show('order'); $('services').scrollIntoView(); });
-  $('d-track').addEventListener('click', function () { show('track'); doTrack(); });
-
-  /* ---------- track ---------- */
-  function timeline(status) {
-    var ol = el('ol', { class: 'steps', 'aria-label': 'Order progress' });
-    var idx = STEPS.indexOf(status);
-    STEPS.forEach(function (name, i) {
-      ol.appendChild(el('li', { class: (i <= idx ? 'on ' : '') + (i === idx ? 'now' : ''), text: name }));
-    });
-    return ol;
-  }
-  function doTrack() {
-    var num = $('t-num').value.trim().toUpperCase(), phone = $('t-phone').value.trim();
-    var msg = $('t-msg'), out = $('t-out'); out.hidden = true; msg.hidden = true;
-    if (!num || C.digits(phone).length < 9) { msg.className = 'banner'; msg.textContent = 'Enter your order number and phone number.'; msg.hidden = false; return; }
-    var b = $('t-go'); b.disabled = true; b.textContent = 'Checking\u2026';
-    C.customer.getOrder(num, phone).then(function (o) {
-      if (!o) { msg.className = 'banner bad'; msg.textContent = 'No order found. Check the order number and the phone number you ordered with.'; msg.hidden = false; return; }
-      out.textContent = '';
-      var from = o.price_is_starting ? 'From ' : '';
-      out.appendChild(el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap' }, [
-        el('h3', { text: o.order_number, style: 'font-size:26px' }), el('span', { class: 'pill ' + C.statusClass(o.status), text: o.status })
-      ]));
-      if (o.status === 'Cancelled') out.appendChild(el('p', { class: 'banner bad', text: 'This order was cancelled. Call or WhatsApp us if you have questions.' }));
-      else out.appendChild(timeline(o.status));
-      var dl = el('dl', { class: 'rows' });
-      dl.appendChild(row('Service', o.service_name)); dl.appendChild(row('Quantity', String(o.quantity)));
-      dl.appendChild(row('Price each', from + C.money(o.unit_price)));
-      dl.appendChild(row('Total', from + C.money(o.total), 'big'));
-      if (o.preferred_date) dl.appendChild(row('Needed by', new Date(o.preferred_date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })));
-      out.appendChild(dl); out.hidden = false;
-    }).catch(function (e) { msg.className = 'banner bad'; msg.textContent = e.message; msg.hidden = false; })
-      .then(function () { b.disabled = false; b.textContent = 'Check progress'; });
-  }
-  $('t-go').addEventListener('click', doTrack);
-  $('t-back').addEventListener('click', function () { show('order'); });
-  $('nav-track').addEventListener('click', function () { show('track'); });
-
-  /* ---------- latest order card ---------- */
-  function loadLast() {
-    var last = null; try { last = JSON.parse(localStorage.getItem('cpz_last') || 'null'); } catch (e) {}
-    if (!last || !C.configured) return;
-    $('t-num').value = last.n; $('t-phone').value = last.p;
-    C.customer.getOrder(last.n, last.p).then(function (o) {
-      if (!o) return;
-      $('last-n').textContent = o.order_number;
-      $('last-s').textContent = o.service_name + ' \u00D7 ' + o.quantity;
-      $('last-pill').textContent = o.status; $('last-pill').className = 'pill ' + C.statusClass(o.status);
-      $('last').hidden = false;
-    }).catch(function () {});
-  }
-  $('last').addEventListener('click', function () { show('track'); doTrack(); });
-
-  loadServices(); loadLast();
-})();
+window.addEventListener("hashchange", route);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+route();
 </script>
 </body>
 </html>
