@@ -142,7 +142,7 @@ function trackView() {
     const o = data[0];
     $("#out").innerHTML = `<div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
       <p class="mute">Qty ${o.quantity} · Total ${money(o.price * o.quantity, o.price_note)} · ${new Date(o.created_at).toLocaleDateString()}</p>
-      <span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span></div>`;
+      <span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span>${o.admin_note ? `<p><b>Message from CPZ:</b> ${esc(o.admin_note)}</p>` : ""}</div>`;
   };
 }
 
@@ -161,45 +161,88 @@ async function admin() {
     };
     return;
   }
+  if (!window.feed) window.feed = sb.channel("orders-feed").on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, p => ping(p.new.order_no)).subscribe();
   if (!["orders", "sales", "services"].includes(tab)) tab = "orders";
   tabs([["orders", "Orders"], ["sales", "Sales"], ["services", "Services"], ["out", "Log out"]]);
   nav.querySelector('[data-k="out"]').onclick = async () => { await sb.auth.signOut(); tab = "order"; admin(); };
   tab === "orders" ? adminOrders() : tab === "sales" ? adminSales() : adminServices();
 }
 
+let ORDERS = [], FILTER = "All";
+const METHODS = ["Cash", "Mobile Money", "Bank"];
+
 async function adminOrders() {
   app.innerHTML = "<p class='mute'>Loading…</p>";
   const { data, error } = await sb.from("orders").select("*").order("created_at", { ascending: false });
   if (error) return app.innerHTML = note("Could not load orders.", "err");
   ORDERS = data;
-  app.innerHTML = `<button class="sm" id="rf">Refresh</button>` + (data.length ? data.map(o => `
-    <div class="card"><h3>${esc(o.order_no)} · ${esc(o.service_name)}</h3>
-      <div class="mute">${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
-      <div class="mute">Qty ${o.quantity} · Total <b>${money(o.price * o.quantity, o.price_note)}</b></div>
-      <p>${esc(o.details) || "<span class='mute'>No details</span>"}</p>
-      <select class="st" data-id="${o.id}">${STATUSES.map(s => `<option ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}</select>${payBlock(o)}</div>`).join("")
-    : "<p class='mute'>No orders yet. Share your link to get the first one.</p>");
+  const list = FILTER === "All" ? data : data.filter(o => o.status === FILTER);
+  const canAlert = window.Notification && Notification.permission === "default";
+  app.innerHTML = `<div class="row"><select id="fl" aria-label="Filter orders">${["All", ...STATUSES].map(x => `<option ${x === FILTER ? "selected" : ""}>${x}</option>`).join("")}</select><button class="sm" id="rf">Refresh</button></div>` +
+    (canAlert ? `<button class="sm" id="al" style="margin-top:8px;width:100%">Turn on order alerts</button>` : "") +
+    (list.length ? list.map(o => {
+      const bal = Math.max(0, o.price * o.quantity - Number(o.paid));
+      return `<div class="card open" data-id="${o.id}" tabindex="0" role="button" style="cursor:pointer">
+        <h3>${esc(o.order_no)} · ${esc(o.service_name)} × ${o.quantity}</h3>
+        <div class="mute">${esc(o.customer_name)} · ${new Date(o.created_at).toLocaleDateString()}</div>
+        <div style="margin-top:6px"><span class="tag ${o.status.replace(" ", "")}">${esc(o.status)}</span> <span class="mute">${bal ? "Owes K" + bal : "Paid"}</span></div></div>`;
+    }).join("") : "<p class='mute'>No orders here.</p>");
   $("#rf").onclick = adminOrders;
-  app.querySelectorAll("select.st").forEach(s => s.onchange = async () => {
-    const { error } = await sb.from("orders").update({ status: s.value }).eq("id", s.dataset.id);
-    if (error) alert("Could not update status.");
-  });
-  app.querySelectorAll(".sp").forEach(b => b.onclick = async () => {
-    const c = b.closest(".card");
-    const { error } = await sb.from("orders").update({ paid: Number(c.querySelector(".pa").value) || 0, pay_method: c.querySelector(".pm").value }).eq("id", b.dataset.id);
-    error ? alert("Could not save payment.") : adminOrders();
-  });
-  app.querySelectorAll(".iv").forEach(b => b.onclick = () => printDoc(ORDERS.find(o => o.id == b.dataset.id)));
+  $("#fl").onchange = e => { FILTER = e.target.value; adminOrders(); };
+  if ($("#al")) $("#al").onclick = () => Notification.requestPermission().then(adminOrders);
+  app.querySelectorAll(".open").forEach(c => c.onclick = () => orderDetail(ORDERS.find(o => o.id == c.dataset.id)));
 }
 
-let ORDERS = [];
-const payBlock = o => {
-  const t = o.price * o.quantity, p = Number(o.paid);
-  return `<div class="mute" style="margin-top:10px">Paid K${p} · Balance K${Math.max(0, t - p)}</div>
-  <div class="row" style="margin-top:6px"><input class="pa" type="number" placeholder="Amount paid (K)" value="${p || ""}" aria-label="Amount paid">
-  <select class="pm" aria-label="Payment method">${["Cash", "Mobile Money", "Bank"].map(m => `<option ${m === o.pay_method ? "selected" : ""}>${m}</option>`).join("")}</select></div>
-  <div class="row" style="margin-top:6px"><button class="sm sp" data-id="${o.id}">Save payment</button><button class="sm iv" data-id="${o.id}">${p >= t && t > 0 ? "Receipt" : "Invoice"}</button></div>`;
-};
+function orderDetail(o) {
+  app.innerHTML = `<button class="sm" id="bk">‹ All orders</button>
+  <h2 style="margin:12px 0 2px">${esc(o.order_no)}</h2><div class="mute">${new Date(o.created_at).toLocaleString()}</div>
+  <label for="st">Status</label><select id="st">${STATUSES.map(x => `<option ${x === o.status ? "selected" : ""}>${x}</option>`).join("")}</select>
+  <label for="sn">Service</label><input id="sn" value="${esc(o.service_name)}">
+  <div class="row"><div><label for="pe">Price each (K)</label><input id="pe" type="number" value="${o.price}"></div>
+  <div><label for="qy">Quantity</label><input id="qy" type="number" min="1" value="${o.quantity}"></div></div>
+  <label for="cn">Customer</label><input id="cn" value="${esc(o.customer_name)}">
+  <label for="cp">Phone</label><input id="cp" type="tel" value="${esc(o.phone)}">
+  <label for="dd">What they asked for</label><textarea id="dd" style="min-height:130px">${esc(o.details)}</textarea>
+  <h3 style="margin-top:20px">Payment</h3><div class="mute" id="bal"></div>
+  <div class="row"><input id="pa" type="number" placeholder="Amount paid (K)" value="${Number(o.paid) || ""}"><select id="pm">${METHODS.map(m => `<option ${m === o.pay_method ? "selected" : ""}>${m}</option>`).join("")}</select></div>
+  <h3 style="margin-top:20px">Message to customer</h3>
+  <textarea id="nt" placeholder="e.g. Your poster is ready for review.">${esc(o.admin_note)}</textarea>
+  <div id="out"></div><button class="go" id="sv">Save changes</button>
+  <div class="row" style="margin-top:10px"><button class="sm" id="wa">WhatsApp customer</button><button class="sm" id="iv"></button></div>`;
+  const vals = () => ({ status: $("#st").value, service_name: $("#sn").value.trim(), price: Number($("#pe").value) || 0, quantity: Math.max(1, parseInt($("#qy").value) || 1),
+    customer_name: $("#cn").value.trim(), phone: $("#cp").value.trim(), details: $("#dd").value, paid: Number($("#pa").value) || 0, pay_method: $("#pm").value, admin_note: $("#nt").value.trim() });
+  const refresh = () => {
+    const v = vals(), t = v.price * v.quantity;
+    $("#bal").textContent = `Total K${t} · Paid K${v.paid} · Balance K${Math.max(0, t - v.paid)}`;
+    $("#iv").textContent = v.paid >= t && t > 0 ? "Receipt" : "Invoice";
+  };
+  app.querySelectorAll("input,select,textarea").forEach(e => e.oninput = refresh); refresh();
+  $("#bk").onclick = adminOrders;
+  $("#sv").onclick = async () => {
+    const v = vals();
+    if (!v.service_name || !v.customer_name) return $("#out").innerHTML = note("Service and customer name are required.", "err");
+    const { error } = await sb.from("orders").update(v).eq("id", o.id);
+    if (error) return $("#out").innerHTML = note("Could not save. Try again.", "err");
+    Object.assign(o, v); $("#out").innerHTML = note("Saved.", "good");
+  };
+  $("#iv").onclick = () => printDoc({ ...o, ...vals() });
+  $("#wa").onclick = () => {
+    const v = vals(); let n = v.phone.replace(/\D/g, ""); if (n.startsWith("0")) n = "260" + n.slice(1);
+    const msg = `Hi ${v.customer_name}, this is Creative Plug Zambia about order ${o.order_no} (${v.quantity} x ${v.service_name}). Status: ${v.status}. ${v.admin_note}`.trim();
+    window.open(`https://wa.me/${n}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+}
+
+function ping(no) {
+  try { const c = new (window.AudioContext || window.webkitAudioContext)(), g = c.createOscillator(); g.connect(c.destination); g.frequency.value = 880; g.start(); g.stop(c.currentTime + 0.25); } catch (e) {}
+  navigator.vibrate && navigator.vibrate([200, 100, 200]);
+  const t = document.createElement("div"); t.className = "msg good";
+  t.style.cssText = "position:fixed;top:12px;left:12px;right:12px;z-index:9;font-weight:700";
+  t.textContent = "New order " + no + ". Tap to view."; t.onclick = () => { t.remove(); tab = "orders"; admin(); };
+  document.body.append(t); setTimeout(() => t.remove(), 15000);
+  if (window.Notification && Notification.permission === "granted" && document.hidden)
+    navigator.serviceWorker.ready.then(r => r.showNotification("New CPZ order", { body: no, icon: "icon-192.png" }));
+}
 
 function printDoc(o) {
   const t = o.price * o.quantity, paid = Number(o.paid), rc = paid >= t && t > 0;
