@@ -26,13 +26,15 @@ nav a.on{color:var(--ac);font-weight:700}
 .doc{background:#fff;color:#111;border-radius:10px;padding:16px;font-size:14px}.doc td{padding:4px 0}
 #toast{position:fixed;top:12px;left:12px;right:12px;background:var(--ac);color:#04251f;padding:12px;border-radius:10px;font-weight:700;display:none;z-index:9}
 .hid{display:none}a{color:var(--ac)}
+#ibar{position:sticky;top:0;z-index:8;background:#0e1729;border-bottom:1px solid var(--ac);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}
+#ibar.hid{display:none}
 </style></head><body>
 <div id="toast"></div>
+<div id="ibar" class="hid"><span>Get the Creative Plug Zambia app</span><button id="inst" class="sm" type="button">Install</button></div>
 
 <!-- CUSTOMER SIDE -->
 <div id="cust" class="w">
   <h1>Creative Plug Zambia</h1><div class="sub">Plug into Creativity.</div>
-  <button id="inst" class="s hid">Install app</button>
   <div class="c">
     <h2 style="margin-top:0">Place an order</h2>
     <label>Your name</label><input id="cn">
@@ -105,8 +107,9 @@ $("tb").onclick=async()=>{
   if(error||!data||!data.length){$("tr").textContent="Order not found. Check the number and phone.";return}
   const o=data[0];$("tr").innerHTML=`<b>${esc(o.order_no)}</b> · ${esc(o.service_name)} × ${o.qty}<br>Total ${K(o.total)}<br>Status: <b>${esc(o.status)}</b>`;
 };
-let dp=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("inst").classList.remove("hid")});
-$("inst").onclick=async()=>{if(dp){dp.prompt();dp=null;$("inst").classList.add("hid")}};
+let dp=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("ibar").classList.remove("hid")});
+$("inst").onclick=async()=>{if(dp){dp.prompt();dp=null;$("ibar").classList.add("hid")}};
+addEventListener("appinstalled",()=>$("ibar").classList.add("hid"));
 
 /* ---------- Auth ---------- */
 $("adm").onclick=async e=>{e.preventDefault();const{data}=await sb.auth.getSession();data.session?openAdmin():show("login")};
