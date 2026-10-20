@@ -63,7 +63,7 @@ nav a.on{color:var(--ac);font-weight:700}
 </div>
 
 <!-- ADMIN -->
-<div id="admin" class="w hid"><div class="row"><h1 id="at">Orders</h1><button class="sm s" id="lo">Log out</button></div><div id="av" style="margin-top:12px"></div></div>
+<div id="admin" class="w hid"><div class="row"><h1 id="at">Orders</h1><button class="sm s" id="lo">Log out</button></div><button id="pushBtn" class="s" type="button">🔔 Turn on phone alerts for new orders</button><div id="av" style="margin-top:12px"></div></div>
 <nav id="nav" class="hid">
   <a data-t="orders">Orders</a><a data-t="invoices">Invoices</a><a data-t="receipts">Receipts</a><a data-t="payments">Payments</a><a data-t="sales">Sales</a><a data-t="services">Services</a>
 </nav>
@@ -124,7 +124,7 @@ $("lo").onclick=async()=>{await sb.auth.signOut();clearInterval(timer);$("nav").
 async function openAdmin(){
   show("admin");$("nav").classList.remove("hid");
   if("Notification" in window&&Notification.permission==="default")Notification.requestPermission();
-  await refresh(true);clearInterval(timer);timer=setInterval(()=>refresh(false),20000);
+  setupPush(false);await refresh(true);clearInterval(timer);timer=setInterval(()=>refresh(false),20000);
 }
 async function refresh(first){
   const[a,b,c]=await Promise.all([sb.from("cpz_orders").select("*").order("created_at",{ascending:false}),sb.from("cpz_payments").select("*").order("created_at",{ascending:false}),sb.from("cpz_services").select("*").order("id")]);
@@ -193,6 +193,29 @@ window.openDoc=(t,id)=>{let o,p,title,rows;
 window.saveSvc=async id=>{await sb.from("cpz_services").update({name:$("sn"+id).value,price:+$("sp"+id).value||0}).eq("id",id);refresh(true)};
 window.togSvc=async(id,a)=>{await sb.from("cpz_services").update({active:a}).eq("id",id);refresh(true)};
 window.addSvc=async()=>{if(!$("nn").value)return;await sb.from("cpz_services").insert({name:$("nn").value,price:+$("np").value||0});refresh(true)};
+
+/* ---------- Phone alerts (push) ---------- */
+const VAPID_PUBLIC="BNCjptAzIs1-pMa4V0RH59BVgl3xhV53b9kv9vUotI7_hyVpeliahuO62Ac74kVT8PrIxz6FQbAjLu86JwdaAa4";
+const b64=s=>{const p="=".repeat((4-s.length%4)%4),r=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+async function setupPush(ask){
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)){if(ask)alert("This browser cannot receive alerts. Please use Chrome and install the app.");return}
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      if(!ask)return;
+      const perm=await Notification.requestPermission();
+      if(perm!=="granted"){alert("Please allow notifications for this app in your phone settings, then try again.");return}
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID_PUBLIC)});
+    }
+    const j=sub.toJSON();
+    const{error}=await sb.from("cpz_push_subs").upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth},{onConflict:"endpoint"});
+    if(error){if(ask)alert("Could not save alerts: "+error.message);return}
+    $("pushBtn").classList.add("hid");
+    if(ask)alert("Phone alerts are ON \u2705");
+  }catch(e){if(ask)alert("Could not turn on alerts: "+e.message)}
+}
+$("pushBtn").onclick=()=>setupPush(true);
 
 loadSvc();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
