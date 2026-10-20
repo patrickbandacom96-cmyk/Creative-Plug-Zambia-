@@ -1,3 +1,4 @@
+importScripts("push-sw.js");
 // CPZ service worker: always fetch fresh files, fall back to cache only when offline.
 const CACHE = "cpz-v3";
 
